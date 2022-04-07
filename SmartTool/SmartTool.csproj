@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CS-Script.Core" Version="2.0.0" />
+    <PackageReference Include="ICSharpCode.Decompiler" Version="7.2.0.6844" />
+    <PackageReference Include="Iot.Device.Bindings" Version="2.1.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
+    <PackageReference Include="Stratis.SmartContracts" Version="2.0.0" />
+    <PackageReference Include="System.Reflection" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SmartTool.Utilities\SmartTool.Utilities.csproj" />
+    <ProjectReference Include="..\Stratis.SmartContracts.Tools.Sct\Stratis.SmartContracts.Tools.Sct.csproj" />
+  </ItemGroup>
+
+</Project>
