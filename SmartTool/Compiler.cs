@@ -66,11 +66,11 @@
                 MetadataReference.CreateFromFile(frameworkPath.FullName + Path.DirectorySeparatorChar + "netstandard.dll")
             };
 
-            var compilation = CSharpCompilation.Create("UserProgramGenerated.dll")
+            var compilation = CSharpCompilation.Create("Generated.dll")
                 .AddSyntaxTrees(new[] { parsedSyntaxTree })
                 .AddReferences(references)
                 .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-            compilation.Emit($"{projectPath}\\UserProgramGenerated.dll");
+            compilation.Emit($"{projectPath}\\Generated.dll");
             return compilation;
         }
     }
