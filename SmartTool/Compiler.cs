@@ -6,11 +6,12 @@
     using System.Reflection;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp;
+    using Microsoft.CodeAnalysis.Emit;
     using Microsoft.CodeAnalysis.Text;
 
     internal class Compiler
     {
-        public byte[] Compile(string filepath)
+        public string Compile(string filepath)
         {
             Console.WriteLine($"Starting compilation of: '{filepath}'");
 
@@ -18,13 +19,13 @@
 
             using(var peStream = new MemoryStream())
             {
-                var result = GenerateCode(sourceCode).Emit(peStream);
+                var result = GenerateCode(sourceCode);
 
-                if(!result.Success)
+                if(!result.EmitResult.Success)
                 {
                     Console.WriteLine("Compilation done with error.");
 
-                    var failures = result.Diagnostics.Where(diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error).ToList();
+                    var failures = result.EmitResult.Diagnostics.Where(diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error).ToList();
 
                     foreach(var diagnostic in failures)
                     {
@@ -36,21 +37,22 @@
 
                 Console.WriteLine("Compilation done without any error.");
 
-                peStream.Seek(0, SeekOrigin.Begin);
+                //peStream.Seek(0, SeekOrigin.Begin);
 
-                return peStream.ToArray();
+                //return peStream.ToArray();
+                return result.OutputPath;
             }
         }
 
-        private static CSharpCompilation GenerateCode(string sourceCode)
+        private static GenerateCodeResponse GenerateCode(string sourceCode)
         {
             var codeString = SourceText.From(sourceCode);
 
             var parsedSyntaxTree = SyntaxFactory.ParseSyntaxTree(codeString, CSharpParseOptions.Default);
-            var clrLibAssemblyLocation = typeof(Enumerable).GetTypeInfo().Assembly.Location;
-            var frameworkPath = Directory.GetParent(clrLibAssemblyLocation);
-            var entryAssemblyLocation = Assembly.GetEntryAssembly().Location;
-            var projectPath = Directory.GetParent(entryAssemblyLocation);
+            var sysIOFrameworkPath = typeof(Directory).GetTypeInfo().Assembly.Location;
+            var frameworkPath = Directory.GetParent(sysIOFrameworkPath);
+            var assemblyLocation = Assembly.GetEntryAssembly().Location;
+            var projectPath = Directory.GetParent(assemblyLocation);
             var references = new MetadataReference[]
             {
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
@@ -61,17 +63,23 @@
                 MetadataReference.CreateFromFile($"{projectPath}\\System.ComponentModel.Annotations.dll"),
                 MetadataReference.CreateFromFile($"{projectPath}\\System.Linq.Async.dll"),
                 MetadataReference.CreateFromFile($"{projectPath}\\UnitsNet.dll"),
-                MetadataReference.CreateFromFile(frameworkPath.FullName + Path.DirectorySeparatorChar + "System.Runtime.dll"),
-                MetadataReference.CreateFromFile(frameworkPath.FullName + Path.DirectorySeparatorChar + "mscorlib.dll"),
-                MetadataReference.CreateFromFile(frameworkPath.FullName + Path.DirectorySeparatorChar + "netstandard.dll")
+                MetadataReference.CreateFromFile(frameworkPath.FullName + "\\System.Runtime.dll"),
+                MetadataReference.CreateFromFile(frameworkPath.FullName + "\\mscorlib.dll"),
+                MetadataReference.CreateFromFile(frameworkPath.FullName + "\\netstandard.dll")
             };
-
+            var outputPath = $"{projectPath}\\Generated.dll";
             var compilation = CSharpCompilation.Create("Generated.dll")
                 .AddSyntaxTrees(new[] { parsedSyntaxTree })
                 .AddReferences(references)
                 .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-            compilation.Emit($"{projectPath}\\Generated.dll");
-            return compilation;
+            var emitResult = compilation.Emit(outputPath);
+            return new GenerateCodeResponse() { OutputPath = outputPath, EmitResult = emitResult};
         }
+    }
+
+    class GenerateCodeResponse
+    {
+        public string OutputPath { get; set; }
+        public EmitResult EmitResult { get; set; }
     }
 }
