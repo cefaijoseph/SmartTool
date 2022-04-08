@@ -1,20 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace cefai
+﻿namespace SmartTool
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public static class CsprojCreator
     {
         public static string GenerateCsproj(string name, List<ProjectReference> references, OutputType outputType = OutputType.ConsoleApplication, string targetFramework = "net5.0")
         {
-            var packageReferences = string.Join(Environment.NewLine, references.Where(x=> !x.IsDll).Select(p => $"<PackageReference Include=\"{p.Name}\" Version=\"{p.Version}\" />").ToArray());
-            var dllReferences = string.Join(Environment.NewLine, references.Where(x=> x.IsDll).Select(p => $"<Reference Include=\"{p.Name}\">\r\n      <HintPath>{p.DllPath}</HintPath>\r\n    </Reference>").ToArray());
+            var packageReferences = string.Join(Environment.NewLine, references.Where(x => !x.IsDll).Select(p => $"<PackageReference Include=\"{p.Name}\" Version=\"{p.Version}\" />").ToArray());
+            var dllReferences = string.Join(Environment.NewLine, references.Where(x => x.IsDll).Select(p => $"<Reference Include=\"{p.Name}\">\r\n      <HintPath>{p.DllPath}</HintPath>\r\n    </Reference>").ToArray());
             return $@"<Project Sdk=""Microsoft.NET.Sdk"">
 
                 <PropertyGroup>
                 <OutputType>{(outputType == OutputType.ConsoleApplication ? "Exe" : outputType == OutputType.WindowsAppliaction ? "WinExe" : outputType == OutputType.ClassLibrary ? "Library" : "")}</OutputType>
-                <TargetFramework> {targetFramework} </TargetFramework>
+                <TargetFramework>{targetFramework}</TargetFramework>
 
                 </PropertyGroup>
 

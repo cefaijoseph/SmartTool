@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-
-namespace cefai
+﻿namespace SmartTool
 {
+    using System.Collections.Generic;
+    using System.Reflection;
+
     public class FileSettings
     {
         public LocationType LocationType { get; set; }

@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing.Text;
-using System.Linq;
-using System.Reflection;
-using ICSharpCode.Decompiler.CSharp.Syntax;
-
-namespace cefai
+﻿namespace StratisTool
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+
     public class ApiCreator
     {
         public static string GenerateApi(ApiSettings apiSettings)

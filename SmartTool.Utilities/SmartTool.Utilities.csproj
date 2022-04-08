@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <OutputPath>C:\thesis\cefai\bin\Debug\net5.0\src\Temperature\ConsoleApp</OutputPath>
+    <OutputPath>C:\SmartTool\SmartTool\bin\Debug\net5.0\src\Temperature\ConsoleApp</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 

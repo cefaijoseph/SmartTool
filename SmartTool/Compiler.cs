@@ -1,13 +1,13 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Text;
-
-namespace cefai
+﻿namespace SmartTool
 {
+    using System;
+    using System.IO;
+    using System.Linq;
+    using System.Reflection;
+    using Microsoft.CodeAnalysis;
+    using Microsoft.CodeAnalysis.CSharp;
+    using Microsoft.CodeAnalysis.Text;
+
     internal class Compiler
     {
         public byte[] Compile(string filepath)
@@ -15,19 +15,18 @@ namespace cefai
             Console.WriteLine($"Starting compilation of: '{filepath}'");
 
             var sourceCode = File.ReadAllText(filepath);
-            //sourceCode = sourceCode.Replace("CefaiInterface", "cefai");
 
-            using (var peStream = new MemoryStream())
+            using(var peStream = new MemoryStream())
             {
                 var result = GenerateCode(sourceCode).Emit(peStream);
 
-                if (!result.Success)
+                if(!result.Success)
                 {
                     Console.WriteLine("Compilation done with error.");
 
                     var failures = result.Diagnostics.Where(diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error).ToList();
 
-                    foreach (var diagnostic in failures)
+                    foreach(var diagnostic in failures)
                     {
                         Console.Error.WriteLine("{0}: {1}", diagnostic.Id, diagnostic.GetMessage());
                     }
@@ -56,7 +55,7 @@ namespace cefai
             {
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
-                MetadataReference.CreateFromFile($"{projectPath}\\cefai.dll"),
+                MetadataReference.CreateFromFile($"{projectPath}\\SmartTool.dll"),
                 MetadataReference.CreateFromFile($"{projectPath}\\Stratis.SmartContracts.dll"),
                 MetadataReference.CreateFromFile($"{projectPath}\\Iot.Device.Bindings.dll"),
                 MetadataReference.CreateFromFile($"{projectPath}\\System.ComponentModel.Annotations.dll"),
@@ -71,7 +70,7 @@ namespace cefai
                 .AddSyntaxTrees(new[] { parsedSyntaxTree })
                 .AddReferences(references)
                 .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-            //compilation.Emit($"{projectPath}\\UserProgramGenerated.dll");
+            compilation.Emit($"{projectPath}\\UserProgramGenerated.dll");
             return compilation;
         }
     }
