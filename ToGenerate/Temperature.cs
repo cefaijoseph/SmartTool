@@ -1,5 +1,6 @@
 ﻿namespace StratisTool.ToGenerate
 {
+    using System;
     using System.Threading.Tasks;
     using Iot.Device.CpuTemperature;
     using SmartTool;
@@ -12,40 +13,22 @@
         [Stratis]
         public int[] Temperatures;
 
-        public Temperature()
-        {
-        }
 
         public void Main()
         {
             while(true)
             {
-                var temp2 = GetTemperature();
-                StoreTemperature(temp2);
+                var temp = GetTemperature();
+                StoreTemperature(temp);
                 Task.Delay(10000);
-                if(IsPersonSensed())
-                {
-                    IncreaseCounter();
-                }
             }
         }
 
         [IoTDevice]
         public int GetTemperature()
         {
-            CpuTemperature temperature = new CpuTemperature();
-            if(temperature.IsAvailable)
-            {
-                return (int)temperature.Temperature.DegreesCelsius;
-            }
-            return -1; //<--- IoT device
-        }
-
-
-        [IoTDevice]
-        public bool IsPersonSensed()
-        {
-            return false; //<--- IoT device
+            Random rnd = new Random();
+            return rnd.Next(50); //<--- IoT device
         }
 
         [Stratis]
