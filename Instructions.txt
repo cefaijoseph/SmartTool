@@ -23,7 +23,7 @@ For the purposes of this tutorial, you will not be writing IoT code, as the enti
 We'll indicate the location of the code with attributes (IoTDevice or Stratis). If no attributes are specified for a field or method, the code will be executed on the main console.
 
 
-Copy the below code
+Copy the below code and replace it in the class you have created inside the ToGenerate solution
 
     public class Temperature : ISmartToolGenerator
     {
@@ -64,8 +64,14 @@ Copy the below code
             Counter += 1;
         }
     }
+Then, right-click on the ToGenerate project and select Build.
 
-Then right click on the project ToGenerate and press Build
+Then right click once more and choose 'Open folder in file explorer.' Navigate to bin/debug/net5.0/ and copy the path to the 'ToGenerate.dll' file.
+
+
+
+
+
 Then right click again and click 'Open folder in file explorer'
 Goto bin/debug/net5.0/ and copy the path to the 'ToGenerate.dll' file
 

@@ -114,7 +114,7 @@
                 .Where(f => f.Module.Name == type.Assembly.ManifestModule.Name)
                 .ToList();
 
-            CreateFile(type, $"{outputPath}/{type.Name}/", "ConsoleApp", consoleFields, consoleProperties, consoleMethods, new FileSettings() { LocationType = LocationType.Main, Methods = iotMethods.Concat(stratisMethods).ToList() });
+            CreateFile(type, $"{outputPath}/{type.Name}/", "ConsoleApp", consoleFields, consoleProperties, consoleMethods, new FileSettings() { LocationType = LocationType.Main, Methods = iotMethods.Concat(stratisMethods).ToList(), IotAttribute = iotAttribute, StratisAttribute = stratisAttribute });
 
             // Validate SmartContract
             if(continueWithValidation)
@@ -238,9 +238,9 @@
                                 var methodAttribute = methodInfo.CustomAttributes.FirstOrDefault();
                                 if(methodAttribute != null)
                                 {
-                                    var methodLocation = methodAttribute.AttributeType == typeof(IoTDeviceAttribute)
+                                    var methodLocation = methodAttribute.AttributeType == settings.IotAttribute
                                         ? LocationType.IoTDevice :
-                                        methodAttribute.AttributeType == typeof(StratisAttribute)
+                                        methodAttribute.AttributeType == settings.StratisAttribute
                                             ? LocationType.Blockchain
                                             : LocationType.Main;
                                     var returnType = methodInfo.ReturnType == typeof(void)
@@ -345,67 +345,6 @@
             if(!Directory.Exists($"{dir}{filename}")) Directory.CreateDirectory($"{dir}{filename}");
             File.WriteAllText($"{dir}{filename}/{filename}.csproj", csprojCode);
             File.WriteAllText($"{dir}{filename}/{filename}.cs", text);
-        }
-
-        private static List<Type> FindDerivedTypes(string dllPrefix, Type baseType)
-        {
-            return Assemblies(dllPrefix).SelectMany(x => x.GetTypes())
-                .Select(t => t.DeclaringType == null
-                    ? t
-                    : t.GetCustomAttribute<CompilerGeneratedAttribute>() != null
-                        ? t.DeclaringType
-                        : null)
-                .Where(t => t != null && t != baseType && !t.GetTypeInfo().IsAbstract && baseType.IsAssignableFrom(t))
-                .Distinct().ToList();
-        }
-
-        private static List<Assembly> Assemblies(string dllPrefix)
-        {
-            var assemblies = new List<Assembly>();
-
-            //Potential location of all assemblies
-            var directory = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location);
-
-            //All dlls in directory of the entry assembly
-            var dlls = Directory.EnumerateFiles(directory, "*.dll", SearchOption.AllDirectories).ToList().Distinct()
-                .ToList();
-
-            var modelsDlls = dlls.Where(x =>
-            {
-                var fileName = Path.GetFileName(x);
-                return fileName.StartsWith($"{dllPrefix}.");
-            }).ToList();
-
-            foreach(var item in modelsDlls)
-            {
-                var assembly = Load(item);
-                if(assembly != null)
-                    assemblies.Add(assembly);
-            }
-            return assemblies;
-        }
-
-
-        public static Assembly Load(string assemblyFullPath)
-        {
-            try
-            {
-                var fileNameWithOutExtension = Path.GetFileNameWithoutExtension(assemblyFullPath);
-
-                var inCompileLibraries = DependencyContext.Default?.CompileLibraries?.Any(l =>
-                    l.Name.Equals(fileNameWithOutExtension, StringComparison.OrdinalIgnoreCase));
-                var inRuntimeLibraries = DependencyContext.Default?.RuntimeLibraries?.Any(l =>
-                    l.Name.Equals(fileNameWithOutExtension, StringComparison.OrdinalIgnoreCase));
-
-                var assembly = inCompileLibraries.GetValueOrDefault() || inRuntimeLibraries.GetValueOrDefault()
-                    ? Assembly.Load(new AssemblyName(fileNameWithOutExtension))
-                    : Assembly.LoadFile(assemblyFullPath);
-
-                return assembly;
-            } catch
-            {
-                return null;
-            }
         }
 
         public static string RemoveBetween(string sourceString, string startTag, string endTag, bool includeTags = false)

@@ -20,6 +20,7 @@ namespace SmartTool
 
                 var httpClient = new HttpClient { BaseAddress = new Uri($"http://localhost:{runtimeSettings.IotApiPort}/") };
                 var response = await httpClient.GetAsync(methodName);
+                var responseContent = await response.Content.ReadAsStringAsync();
                 return typeof(T) == typeof(bool) ? (T)Convert.ChangeType(response.IsSuccessStatusCode, typeof(T)) : (T)Convert.ChangeType(response.Content, typeof(T));
             }
             if(location == "Blockchain")

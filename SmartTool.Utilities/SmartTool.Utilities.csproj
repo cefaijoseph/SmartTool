@@ -5,11 +5,6 @@
     <OutputType>Library</OutputType>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <OutputPath>C:\SmartTool\SmartTool\bin\Debug\net5.0\src\Temperature\ConsoleApp</OutputPath>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
