@@ -24,18 +24,42 @@
     {
         static void Main(string[] args)
         {
-            var outputPath = args.FirstOrDefault(x => x.StartsWith("--output=")).Substring(9);
-            var dllPath = args.FirstOrDefault(x => x.StartsWith("--path=")).Substring(7);
-            if(dllPath is null)
+            var dllPath = string.Empty;
+            while(dllPath == string.Empty)
             {
-                throw new Exception("You need to pass the path of the program by using '--path=YOURPATH'");
+                Console.WriteLine("Enter the DLL path of the project that contains the file which inherits ISmartToolGenerator.");
+                dllPath = Console.ReadLine();
+                if(!File.Exists(dllPath))
+                {
+                    Console.WriteLine("Incorrect path!");
+                    dllPath = "";
+                }
             }
 
-            if(outputPath is null)
+            var outputPath = string.Empty;
+            while(outputPath == string.Empty)
             {
-                outputPath = Path.GetDirectoryName(dllPath);
+                Console.WriteLine("Enter the preferred output folder location (if not specified files will be located in the bin folder).");
+                outputPath = Console.ReadLine();
+                if(outputPath == string.Empty)
+                {
+                    outputPath = Path.GetDirectoryName(dllPath);
+                }
+
+                if(!Directory.Exists(outputPath))
+                {
+                    Console.WriteLine("Incorrect path!");
+                    outputPath = string.Empty;
+                }
             }
-            var continueWithValidation = args.Any(x => x == "validate");
+
+            var continueWithValidation = false;
+            Console.WriteLine("Do you want to validate the smart contract?");
+            var key = Console.ReadKey(false).Key;
+            if(key == ConsoleKey.Y)
+            {
+                continueWithValidation = true;
+            }
 
             // Compiles file written by the user
             //var dllPath = new Compiler().Compile(path);
@@ -105,6 +129,8 @@
                     Console.WriteLine(hashDisplay.ToString());
                     Console.WriteLine("ByteCode");
                     Console.WriteLine(result.Compilation.ToHexString());
+                    Console.WriteLine("\n Congratulations! You have created a smart contract, now lets deploy it!");
+                    Console.ReadLine();
                 } else
                 {
                     Console.WriteLine($"Error with validating the smart contract for {type.Name}");
