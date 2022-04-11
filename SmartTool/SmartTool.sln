@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31112.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartTool", "SmartTool.csproj", "{799ED377-840F-4584-ACFA-6AD384D058DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartTool", "SmartTool.csproj", "{799ED377-840F-4584-ACFA-6AD384D058DA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stratis.SmartContracts.Tools.Sct", "..\Stratis.SmartContracts.Tools.Sct\Stratis.SmartContracts.Tools.Sct.csproj", "{076AA396-24C2-4CAE-B301-E3C91839A38A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartTool.Utilities", "..\SmartTool.Utilities\SmartTool.Utilities.csproj", "{3F920A45-BEA8-420D-BE99-C7ED7EE47F40}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartTool.Utilities", "..\SmartTool.Utilities\SmartTool.Utilities.csproj", "{3F920A45-BEA8-420D-BE99-C7ED7EE47F40}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -24,26 +24,34 @@
     {
         static void Main(string[] args)
         {
-            var path = args.FirstOrDefault(x => x.StartsWith("--path=")).Substring(7);
-            if(path is null)
+            var outputPath = args.FirstOrDefault(x => x.StartsWith("--output=")).Substring(9);
+            var dllPath = args.FirstOrDefault(x => x.StartsWith("--path=")).Substring(7);
+            if(dllPath is null)
             {
                 throw new Exception("You need to pass the path of the program by using '--path=YOURPATH'");
             }
 
-            var pathDir = Path.GetDirectoryName(path);
+            if(outputPath is null)
+            {
+                outputPath = Path.GetDirectoryName(dllPath);
+            }
             var continueWithValidation = args.Any(x => x == "validate");
 
             // Compiles file written by the user
-
-            var dllPath = new Compiler().Compile(path);
+            //var dllPath = new Compiler().Compile(path);
 
             // Gets the type of the compile file, which should inherit ISmartToolGenerator
-            var type = Assembly.LoadFile(dllPath).GetTypes().Where(t => t != null && t != typeof(ISmartToolGenerator) && !t.GetTypeInfo().IsAbstract && typeof(ISmartToolGenerator).IsAssignableFrom(t)).FirstOrDefault();
-            
+            var assembly = Assembly.LoadFile(dllPath);
+            var attributes = assembly.GetTypes().Where(x => x.BaseType == typeof(System.Attribute)).ToList();
+            var iotAttribute = attributes.Where(x => x.Name == "IoTDeviceAttribute").FirstOrDefault();
+            var stratisAttribute = attributes.Where(x => x.Name == "StratisAttribute").FirstOrDefault();
+            var smartToolInterface = assembly.GetTypes().Where(x => x.Name == "ISmartToolGenerator").FirstOrDefault();
+            var type = assembly.GetTypes().Where(t => t != null && t != smartToolInterface
+                && !t.GetTypeInfo().IsAbstract && smartToolInterface.IsAssignableFrom(t)).FirstOrDefault();
 
-            if(!Directory.Exists($"{pathDir}/{type.Name}"))
+            if(!Directory.Exists($"{outputPath}/{type.Name}"))
             {
-                Directory.CreateDirectory($"{pathDir}/{type.Name}");
+                Directory.CreateDirectory($"{outputPath}/{type.Name}");
             }
 
             // fields
@@ -55,41 +63,39 @@
             // methods
             var methods = type.GetMethods();
 
-
             // IoT
-            var iotFields = fields.Where(f => f.GetCustomAttribute<IoTDeviceAttribute>() != null).ToList();
-            var iotProperties = properties.Where(f => f.GetCustomAttribute<IoTDeviceAttribute>() != null).ToList();
-            var iotMethods = methods.Where(f => f.GetCustomAttribute<IoTDeviceAttribute>() != null).ToList();
-            CreateFile(type, $"{pathDir}/{type.Name}/", "IoTApp", iotFields, iotProperties, iotMethods, new FileSettings() { LocationType = LocationType.IoTDevice });
+            var iotFields = fields.Where(f => f.GetCustomAttribute(iotAttribute) != null).ToList();
+            var iotProperties = properties.Where(f => f.GetCustomAttribute(iotAttribute) != null).ToList();
+            var iotMethods = methods.Where(f => f.GetCustomAttribute(iotAttribute) != null).ToList();
+            CreateFile(type, $"{outputPath}/{type.Name}/", "IoTApp", iotFields, iotProperties, iotMethods, new FileSettings() { LocationType = LocationType.IoTDevice });
 
             // Stratis
-            var stratisFields = fields.Where(f => f.GetCustomAttribute<StratisAttribute>() != null).ToList();
-            var stratisProperties = properties.Where(f => f.GetCustomAttribute<StratisAttribute>() != null).ToList();
-            var stratisMethods = methods.Where(f => f.GetCustomAttribute<StratisAttribute>() != null).ToList();
-            CreateFile(type, $"{pathDir}/{type.Name}/", "StratisApp", stratisFields, stratisProperties, stratisMethods, new FileSettings() { LocationType = LocationType.Blockchain });
+            var stratisFields = fields.Where(f => f.GetCustomAttribute(stratisAttribute) != null).ToList();
+            var stratisProperties = properties.Where(f => f.GetCustomAttribute(stratisAttribute) != null).ToList();
+            var stratisMethods = methods.Where(f => f.GetCustomAttribute(stratisAttribute) != null).ToList();
+            CreateFile(type, $"{outputPath}/{type.Name}/", "StratisApp", stratisFields, stratisProperties, stratisMethods, new FileSettings() { LocationType = LocationType.Blockchain });
 
             // Rest is console
             var consoleFields = fields
-                .Where(f => f.GetCustomAttribute<IoTDeviceAttribute>() == null)
-                .Where(f => f.GetCustomAttribute<StratisAttribute>() == null)
+                .Where(f => f.GetCustomAttribute(iotAttribute) == null)
+                .Where(f => f.GetCustomAttribute(stratisAttribute) == null)
                 .ToList();
             var consoleProperties = properties
-                .Where(f => f.GetCustomAttribute<IoTDeviceAttribute>() == null)
-                .Where(f => f.GetCustomAttribute<StratisAttribute>() == null)
+                .Where(f => f.GetCustomAttribute(iotAttribute) == null)
+                .Where(f => f.GetCustomAttribute(stratisAttribute) == null)
                 .ToList();
             var consoleMethods = methods
-                .Where(f => f.GetCustomAttribute<IoTDeviceAttribute>() == null)
-                .Where(f => f.GetCustomAttribute<StratisAttribute>() == null)
+                .Where(f => f.GetCustomAttribute(iotAttribute) == null)
+                .Where(f => f.GetCustomAttribute(stratisAttribute) == null)
                 .Where(f => f.Module.Name == type.Assembly.ManifestModule.Name)
                 .ToList();
 
-            CreateFile(type, $"{pathDir}/{type.Name}/", "ConsoleApp", consoleFields, consoleProperties, consoleMethods, new FileSettings() { LocationType = LocationType.Main, Methods = iotMethods.Concat(stratisMethods).ToList() });
+            CreateFile(type, $"{outputPath}/{type.Name}/", "ConsoleApp", consoleFields, consoleProperties, consoleMethods, new FileSettings() { LocationType = LocationType.Main, Methods = iotMethods.Concat(stratisMethods).ToList() });
 
             // Validate SmartContract
-
             if(continueWithValidation)
             {
-                var smartContractPath = $"{pathDir}\\{type.Name}\\StratisApp\\StratisApp.cs";
+                var smartContractPath = $"{outputPath}\\{type.Name}\\StratisApp\\StratisApp.cs";
                 ContractCompilationResult result = CompilationLoader.CompileFromFileOrDirectoryName(smartContractPath);
                 if(result is not null && result.Success)
                 {
