@@ -1,0 +1,82 @@
+To begin, we'll download a tool provided by stratis that will enable us to run a full node locally (a contatiner which contains all of the blockchain's data) with a GUI for deploying smart contracts.
+
+Navigate to https://github.com/stratisproject/CirrusCore/releases/tag/1.6.1.0-privatenet, scroll down to the assets section, and download 'Cirrus.Core.Private.Net-v1.6.1-setup-win-x64.exe' if you're a Windows user, or 'Cirrus.Core.Private.Net-v1.6.1-mac.dmg' if you are a mac user
+
+Open the 'Cirrus Core Private Net' application and wait for the node to be started by the program.
+
+Log in with the account name 'cirrusdev' and the password 'password'.
+
+Choose the initial address.
+
+All interactions with the blockchain will be displayed in the section titled "Recent Transactions."
+
+At the top, navigate to the smart contracts section and leave it alone; we'll return to this later.
+
+Now, let's write a simple program to demonstrate the functionality that our tool will require.
+
+Open the ToGenerate solution that was provided.
+
+Create a new class with any name you like and inherit the ISmartToolGenerator interface.
+
+For the purposes of this tutorial, you will not be writing IoT code, as the entire process will be carried out on your PC. Therefore, let us develop a system that retrieves the temperature from an IoT device (we will substitute static data for the temperature) and stores it on the blockchain.
+
+We'll indicate the location of the code with attributes (IoTDevice or Stratis). If no attributes are specified for a field or method, the code will be executed on the main console.
+
+
+Copy the below code
+
+    public class Temperature : ISmartToolGenerator
+    {
+        [Stratis]
+        public int Counter;
+
+        [Stratis]
+        public int[] Temperatures;
+
+
+        public void Main()
+        {
+            while(true)
+            {
+                var temp = GetTemperature();
+                StoreTemperature(temp);
+                Task.Delay(10000);
+            }
+        }
+
+        [IoTDevice]
+        public int GetTemperature()
+        {
+            Random rnd = new Random();
+            return rnd.Next(50); //<--- IoT device
+        }
+
+        [Stratis]
+        public void StoreTemperature(int tempReading)
+        {
+            Temperatures[Counter] = tempReading;
+            IncreaseCounter();
+        }
+
+        [Stratis]
+        public void IncreaseCounter()
+        {
+            Counter += 1;
+        }
+    }
+
+Then right click on the project ToGenerate and press Build
+Then right click again and click 'Open folder in file explorer'
+Goto bin/debug/net5.0/ and copy the path to the 'ToGenerate.dll' file
+
+Now run StratisTool.exe, and enter the dll path for the first question
+Then enter the output path (optional: if not specified the folder generated will be placed in the bin next to the Generated.dll)
+Then press Y in order to validate the smart contract and generate the bytecode which will be used to deploy the contract on the cirrus node.
+If the contract compiles successfully copy the byte code and go back to the Cirrus Node that was set at the start of this tutorial.
+Go to Smart contracts, create smart contract and fill in the details
+Then when it is executed wait until the transaction is confirmed and copy the address of the smart contract.
+Open the console app folder and enter the contract address where specified.
+Then open the IotApp project and run it. This is a simple api that can be placed on a raspberry pi, however for this demo we will run it on your PC
+Go back to the console app and start the app
+
+
