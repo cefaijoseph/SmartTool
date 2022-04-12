@@ -21,7 +21,7 @@ namespace SmartTool
                 var httpClient = new HttpClient { BaseAddress = new Uri($"http://localhost:{runtimeSettings.IotApiPort}/") };
                 var response = await httpClient.GetAsync(methodName);
                 var responseContent = await response.Content.ReadAsStringAsync();
-                return typeof(T) == typeof(bool) ? (T)Convert.ChangeType(response.IsSuccessStatusCode, typeof(T)) : (T)Convert.ChangeType(response.Content, typeof(T));
+                return typeof(T) == typeof(bool) ? (T)Convert.ChangeType(response.IsSuccessStatusCode, typeof(T)) : (T)Convert.ChangeType(responseContent, typeof(T));
             }
             if(location == "Blockchain")
             {
@@ -49,15 +49,22 @@ namespace SmartTool
                         while(triesLeft != 0 && !receiptResponse.Success)
                         {
                             {
-                                //Wait for the block to be mined
                                 await Task.Delay(6000);
+                                //Wait for the block to be mined
                                 var receiptData =
-                                    await httpClient.GetAsync($"receipt ? txHash ={response.TransactionId}");
+                                    await httpClient.GetAsync($"receipt?txHash={response.TransactionId}");
                                 var receiptContent = await receiptData.Content.ReadAsStringAsync();
-                                receiptResponse =
-                                    JsonConvert.DeserializeObject<GetReceiptResponse>(receiptContent);
-                                if(!response.Success)
+                                if(receiptContent != string.Empty)
+                                {
+                                    receiptResponse = JsonConvert.DeserializeObject<GetReceiptResponse>(receiptContent);
+                                    if(!receiptResponse.Success)
+                                    {
+                                        triesLeft--;
+                                    }
+                                } else
+                                {
                                     triesLeft--;
+                                }
                             }
                         }
 
