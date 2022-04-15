@@ -32,7 +32,7 @@
                 if(!File.Exists(dllPath))
                 {
                     Console.WriteLine("Incorrect path!");
-                    dllPath = "";
+                    dllPath = string.Empty;
                 }
             }
 
@@ -61,9 +61,6 @@
                 continueWithValidation = true;
             }
 
-            // Compiles file written by the user
-            //var dllPath = new Compiler().Compile(path);
-
             // Gets the type of the compile file, which should inherit ISmartToolGenerator
             var assembly = Assembly.LoadFile(dllPath);
             var attributes = assembly.GetTypes().Where(x => x.BaseType == typeof(System.Attribute)).ToList();
@@ -87,17 +84,19 @@
             // methods
             var methods = type.GetMethods();
 
+            var constructor = type.GetConstructors().ToList();
+
             // IoT
             var iotFields = fields.Where(f => f.GetCustomAttribute(iotAttribute) != null).ToList();
             var iotProperties = properties.Where(f => f.GetCustomAttribute(iotAttribute) != null).ToList();
             var iotMethods = methods.Where(f => f.GetCustomAttribute(iotAttribute) != null).ToList();
-            CreateFile(type, $"{outputPath}/{type.Name}/", "IoTApp", iotFields, iotProperties, iotMethods, new FileSettings() { LocationType = LocationType.IoTDevice });
+            CreateFile(type, $"{outputPath}/{type.Name}/", "IoTApp", iotFields, iotProperties, iotMethods, constructor, new FileSettings() { LocationType = LocationType.IoTDevice });
 
             // Stratis
             var stratisFields = fields.Where(f => f.GetCustomAttribute(stratisAttribute) != null).ToList();
             var stratisProperties = properties.Where(f => f.GetCustomAttribute(stratisAttribute) != null).ToList();
             var stratisMethods = methods.Where(f => f.GetCustomAttribute(stratisAttribute) != null).ToList();
-            CreateFile(type, $"{outputPath}/{type.Name}/", "StratisApp", stratisFields, stratisProperties, stratisMethods, new FileSettings() { LocationType = LocationType.Blockchain });
+            CreateFile(type, $"{outputPath}/{type.Name}/", "StratisApp", stratisFields, stratisProperties, stratisMethods, constructor, new FileSettings() { LocationType = LocationType.Blockchain });
 
             // Rest is console
             var consoleFields = fields
@@ -114,7 +113,7 @@
                 .Where(f => f.Module.Name == type.Assembly.ManifestModule.Name)
                 .ToList();
 
-            CreateFile(type, $"{outputPath}/{type.Name}/", "ConsoleApp", consoleFields, consoleProperties, consoleMethods, new FileSettings() { LocationType = LocationType.Main, Methods = iotMethods.Concat(stratisMethods).ToList(), IotAttribute = iotAttribute, StratisAttribute = stratisAttribute });
+            CreateFile(type, $"{outputPath}/{type.Name}/", "ConsoleApp", consoleFields, consoleProperties, consoleMethods, constructor, new FileSettings() { LocationType = LocationType.Main, Methods = iotMethods.Concat(stratisMethods).ToList(), IotAttribute = iotAttribute, StratisAttribute = stratisAttribute, DllPath = dllPath });
 
             // Validate SmartContract
             if(continueWithValidation)
@@ -148,20 +147,20 @@
         }
 
 
-        private static void CreateFile(Type type, string dir, string filename, List<FieldInfo> fields, List<PropertyInfo> properties, List<MethodInfo> methods,
+        private static void CreateFile(Type type, string dir, string filename, List<FieldInfo> fields, List<PropertyInfo> properties, List<MethodInfo> methods, List<ConstructorInfo> constructors,
             FileSettings settings)
         {
             var isBlockchain = settings.LocationType == LocationType.Blockchain;
             var isIot = settings.LocationType == LocationType.IoTDevice;
             var isMain = settings.LocationType == LocationType.Main;
             var endpoints = new List<EndPoint>();
-            var constructorCode = "";
-            var fieldsCode = "";
+            var constructorCode = string.Empty;
+            var fieldsCode = string.Empty;
+
             if(isBlockchain)
             {
                 fieldsCode = string.Join(Environment.NewLine, fields.Select(f =>
                 {
-                    var a = f;
                     return
                         $@"
                         public {f.FieldType.FullName} {f.Name} {{
@@ -171,50 +170,41 @@
                 })
                         .ToArray());
 
-            } else if(isMain)
+            }
+
+            if(isMain)
             {
                 fieldsCode = string.Join(Environment.NewLine, fields.Select(f => $"public {f.FieldType.FullName} {f.Name};").ToArray());
-
             }
 
             var propertiesCode = string.Join(Environment.NewLine, properties.Select(f => $"public {f.PropertyType.FullName} {f.Name} {{get;set;}}").ToArray());
             var methodsCode = string.Join(Environment.NewLine, methods.Select(f =>
             {
 
-                string codeLines = "";
+                string currentMethodCode = "";
                 try
                 {
-                    //var parameters = string.Join(", ", f.GetParameters().Select(f => $"{f.ParameterType.FullName} {f.Name};").ToArray());
-
-                    var csharpOutput = new StringWriter();
-                    var decompilerSettings = new DecompilerSettings()
-                    {
-                    };
-
-                    var decompiler = new CSharpDecompiler(type.Assembly.Location, decompilerSettings);
-                    var st = decompiler.Decompile((MethodDefinitionHandle)MetadataTokens.EntityHandle(f.MetadataToken));
-                    WriteCode(csharpOutput, decompilerSettings, st);
-                    codeLines = csharpOutput.ToString();
+                    currentMethodCode = Decompile(type.Assembly.Location, f.MetadataToken);
 
                     if(isIot)
                     {
                         foreach(var att in f.CustomAttributes)
                         {
                             var name = att.AttributeType.Name.Replace("Attribute", "");
-                            codeLines = codeLines.Replace($"[{name}]", "");
+                            currentMethodCode = currentMethodCode.Replace($"[{name}]", "");
                         }
 
-                        var start = codeLines.IndexOf('{');
-                        var end = codeLines.LastIndexOf('}');
-                        codeLines = codeLines.Substring(start + 1, end - start - 1);
-                        endpoints.Add(new EndPoint() { Code = codeLines, FunctionName = f.Name, Parameters = f.GetParameters() });
+                        var start = currentMethodCode.IndexOf('{');
+                        var end = currentMethodCode.LastIndexOf('}');
+                        currentMethodCode = currentMethodCode.Substring(start + 1, end - start - 1);
+                        endpoints.Add(new EndPoint() { Code = currentMethodCode, FunctionName = f.Name, Parameters = f.GetParameters() });
                     }
                     if(settings.LocationType == LocationType.Main)
                     {
-                        codeLines = codeLines.Replace("public void Main()", "static async Task Main(string[] args)");
+                        currentMethodCode = currentMethodCode.Replace("public void Main()", "static async Task Main(string[] args)");
                         //Get all function calls
 
-                        var funtionsToCall = Regex.Matches(codeLines, "([a-zA-Z])+([(])+(.*|[(]|[)])+([)])").Select(x => x.Value).ToList();
+                        var funtionsToCall = Regex.Matches(currentMethodCode, "([a-zA-Z])+([(])+(.*|[(]|[)])+([)])").Select(x => x.Value).ToList();
                         foreach(var method in funtionsToCall)
                         {
                             var methodName = RemoveBetween(method, "(", ")", true);
@@ -247,7 +237,7 @@
                                         ? "System.Boolean"
                                         : methodInfo.ReturnType.FullName;
                                     var runtimeCall = $"await RuntimeCall<{returnType}>(\"{methodLocation}\",\"{methodName}\", runtimeSettings {(parametersWithType.Length > 0 ? $", {parametersWithType}" : "")})";
-                                    codeLines = codeLines.Replace(method, runtimeCall);
+                                    currentMethodCode = currentMethodCode.Replace(method, runtimeCall);
                                 }
                             }
 
@@ -258,15 +248,15 @@
                     foreach(var att in f.CustomAttributes)
                     {
                         var name = att.AttributeType.Name.Replace("Attribute", "");
-                        codeLines = codeLines.Replace($"[{name}]", "");
+                        currentMethodCode = currentMethodCode.Replace($"[{name}]", "");
                     }
                 } catch(Exception ex)
                 {
                     Console.WriteLine($"Error with generating {settings.LocationType}");
                 };
-
-                return codeLines;
+                return currentMethodCode;
             }).ToArray());
+
             var text = @$"";
             if(!isIot)
             {
@@ -283,7 +273,7 @@
                 using System.Collections.Generic;
                 using System.Runtime.CompilerServices;
                 using SmartTool;
-                using static SmartTool.Utilities;" : "")}
+                using static SmartTool.ToolCalls;" : "")}
                 {(isBlockchain ? "using Stratis.SmartContracts;" : "")}
 
 
@@ -297,8 +287,6 @@
                                @"static RuntimeSettings runtimeSettings = new RuntimeSettings()
                         {
                             ContractAddress = """",
-                            Password = """",
-                            WalletName = """",
                             Sender = """"
                         };" : "")}
 
@@ -323,7 +311,8 @@
             var references = new List<ProjectReference>();
             if(isMain)
             {
-                references.Add(new ProjectReference() { DllPath = "SmartTool.Utilities.dll", Name = "SmartTool.Utilities" });
+                var smartToolUtilitiesDll = $"{Directory.GetCurrentDirectory()}\\SmartTool.Utilities.dll";
+                references.Add(new ProjectReference() { DllPath = smartToolUtilitiesDll, Name = "SmartTool.Utilities" });
                 references.Add(new ProjectReference() { Name = "Newtonsoft.Json", Version = "13.0.1" });
             }
             if(isBlockchain)
@@ -342,7 +331,10 @@
             csprojCode = isBlockchain ? CsprojCreator.GenerateCsproj(filename, references, OutputType.ClassLibrary) : CsprojCreator.GenerateCsproj(filename, references);
             text = FixUsings(text);
             text = text.Replace("using SmartTool;", "");
-            if(!Directory.Exists($"{dir}{filename}")) Directory.CreateDirectory($"{dir}{filename}");
+            if(!Directory.Exists($"{dir}{filename}"))
+            {
+                Directory.CreateDirectory($"{dir}{filename}");
+            }
             File.WriteAllText($"{dir}{filename}/{filename}.csproj", csprojCode);
             File.WriteAllText($"{dir}{filename}/{filename}.cs", text);
         }
@@ -374,6 +366,17 @@
             code = code.Insert(0, usingsCode);
             code = Regex.Replace(code, @"^\s*$\n|\r", string.Empty, RegexOptions.Multiline).TrimEnd();
             return code;
+        }
+
+        private static string Decompile(string assemblyLocation, int metadataToken)
+        {
+            var code = string.Empty;
+            var csharpOutput = new StringWriter();
+            var decompilerSettings = new DecompilerSettings();
+            var decompiler = new CSharpDecompiler(assemblyLocation, decompilerSettings);
+            var st = decompiler.Decompile((MethodDefinitionHandle)MetadataTokens.EntityHandle(metadataToken));
+            WriteCode(csharpOutput, decompilerSettings, st);
+            return csharpOutput.ToString();
         }
     }
 }

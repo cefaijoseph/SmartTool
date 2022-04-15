@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -17,11 +18,23 @@ namespace SmartTool
         {
             if(location == "IoTDevice")
             {
-
-                var httpClient = new HttpClient { BaseAddress = new Uri($"http://localhost:{runtimeSettings.IotApiPort}/") };
-                var response = await httpClient.GetAsync(methodName);
-                var responseContent = await response.Content.ReadAsStringAsync();
-                return typeof(T) == typeof(bool) ? (T)Convert.ChangeType(response.IsSuccessStatusCode, typeof(T)) : (T)Convert.ChangeType(responseContent, typeof(T));
+                try
+                {
+                    var httpClient = new HttpClient { BaseAddress = new Uri($"http://localhost:{runtimeSettings.IotApiPort}/") };
+                    var response = await httpClient.GetAsync(methodName);
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    if(response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine($"IoTDevice: Execution to {methodName} was successful. Returned {responseContent}");
+                    } else
+                    {
+                        Console.WriteLine($"IoTDevice: Error when calling {methodName}");
+                    }
+                    return typeof(T) == typeof(bool) ? (T)Convert.ChangeType(response.IsSuccessStatusCode, typeof(T)) : (T)Convert.ChangeType(responseContent, typeof(T));
+                } catch(HttpRequestException ex)
+                {
+                    Console.WriteLine("Error with reaching API");
+                }
             }
             if(location == "Blockchain")
             {
@@ -39,6 +52,10 @@ namespace SmartTool
                     await httpClient.PostAsJsonAsync("build-and-send-call", callSmartContractRequest);
                 var responseContent = await responseData.Content.ReadAsStringAsync();
                 var response = JsonConvert.DeserializeObject<CallSmartContractResponse>(responseContent);
+                if(response.Success)
+                {
+                    Console.WriteLine($"Blockchain: Call to {callSmartContractRequest.MethodName} was executed succesfully.");
+                }
                 // After transaction build and deployment on the blockchain, getTransaction is called in order to retrieve the receipt (it will include the return values)
                 if(response != null && response.Success)
                 {
@@ -49,6 +66,7 @@ namespace SmartTool
                         while(triesLeft != 0 && !receiptResponse.Success)
                         {
                             {
+                                Console.WriteLine($"Blockchain: Waiting for receipt... (tries left: {triesLeft})");
                                 await Task.Delay(6000);
                                 //Wait for the block to be mined
                                 var receiptData =
@@ -68,25 +86,36 @@ namespace SmartTool
                             }
                         }
 
-                        if(typeof(T) == typeof(void) && receiptResponse.Success)
+                        if(typeof(T) == typeof(bool))
                         {
-                            return (T)Convert.ChangeType((receiptResponse == null ? false : (receiptResponse.Success ? true : false)), typeof(T));
+                            if(receiptResponse is not null && receiptResponse.Success)
+                            {
+                                Console.WriteLine($"Blockchain: Receipt was returned successfully");
+                            }
+                            if(receiptResponse is null || !receiptResponse.Success)
+                            {
+                                Console.WriteLine($"Blockchain: Error with receipt retrieval");
+                            }
+                            return (T)Convert.ChangeType(receiptResponse == null ? false : (receiptResponse.Success ? true : false), typeof(T));
                         }
-
+                        Console.WriteLine($"Blockchain: Receipt was returned successfully. Returned {receiptResponse?.ReturnValue}");
                         return (T)Convert.ChangeType(receiptResponse?.ReturnValue, typeof(T));
                     }
                 }
             }
-                return (T)Convert.ChangeType(null, typeof(T));
+            Console.WriteLine($"Blockchain: Something went wrong");
+            return (T)Convert.ChangeType(null, typeof(T));
         }
 
 
         public class RuntimeSettings
         {
-            public string ContractAddress { get; set; } = "PXfDYtbsuJ4Ek9toQCH6doav51rfZTCNjc";
+            [MinLength(20)]
+            public string ContractAddress { get; set; }
             public string WalletName { get; set; } = "cirrusdev";
             public string Password { get; set; } = "password";
-            public string Sender { get; set; } = "PXDQxB4YQQFG3kzwFyDsPsVMwZ1vFz1RiE";
+            [MinLength(20)]
+            public string Sender { get; set; }
             public int IotApiPort { get; set; } = 5000;
         }
 

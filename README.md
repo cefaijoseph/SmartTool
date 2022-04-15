@@ -35,19 +35,27 @@ Copy the below code and replace it in the class you have created inside the ToGe
 
     public class Temperature : ISmartToolGenerator
     {
-        [Stratis]
-        public int Counter;
+        // Note: Stratis and IotDevice attributes indicate where the variables and methods will live
+        // Methods can only access variables which live on the same platform, meaning a method with a Stratis attribute can only only access a variable with a Stratis attribute
 
         [Stratis]
-        public int[] Temperatures;
+        public int TemperatureReadings;
 
+        [Stratis]
+        public int CurrentTemperature;
 
+        // The main function will contain the logic need between in order to integrate both Blockchain and IoT devices together.
         public void Main()
         {
             while(true)
             {
+                //Retrieves the data from the Api, which will eventually live next to an IoT device
                 var temp = GetTemperature();
+
+                // Stores the data on the blockchain
                 StoreTemperature(temp);
+
+                // Waits 10 seconds before process is iterated
                 Task.Delay(10000);
             }
         }
@@ -55,23 +63,23 @@ Copy the below code and replace it in the class you have created inside the ToGe
         [IoTDevice]
         public int GetTemperature()
         {
+            // A random number is returned, in order to substitute the IoT data.
             Random rnd = new Random();
-            return rnd.Next(50); //<--- IoT device
+            return rnd.Next(50);
         }
 
         [Stratis]
         public void StoreTemperature(int tempReading)
         {
-            Temperatures[Counter] = tempReading;
-            IncreaseCounter();
-        }
+            // Update the temperature reading on the blockchain
+            CurrentTemperature = tempReading;
 
-        [Stratis]
-        public void IncreaseCounter()
-        {
-            Counter += 1;
+            //Increase temperature reading
+            TemperatureReadings += 1;
         }
     }
+
+Resolve any missing references.
 Then, right-click on the ToGenerate project and select Build.
 
 Then right click once more and choose 'Open folder in file explorer.' Navigate to bin/debug/net5.0/ and copy the path to the 'ToGenerate.dll' file.

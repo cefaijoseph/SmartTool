@@ -10,6 +10,7 @@
         public List<MethodInfo> Methods { get; set; }
         public Type IotAttribute { get; set; }
         public Type StratisAttribute { get; set; }
+        public string DllPath { get; set; }
     }
 
     public enum LocationType
