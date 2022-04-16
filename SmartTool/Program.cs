@@ -24,49 +24,23 @@
     {
         static void Main(string[] args)
         {
-            var dllPath = string.Empty;
-            while(dllPath == string.Empty)
-            {
-                Console.WriteLine("Enter the DLL path of the project that contains the file which inherits ISmartToolGenerator.");
-                dllPath = Console.ReadLine();
-                if(!File.Exists(dllPath))
-                {
-                    Console.WriteLine("Incorrect path!");
-                    dllPath = string.Empty;
-                }
-            }
+            // Asks user to enter the path of the DLL
+            var dllPath = GetDllPathFromUser();
 
-            var outputPath = string.Empty;
-            while(outputPath == string.Empty)
-            {
-                Console.WriteLine("Enter the preferred output folder location (if not specified files will be located in the bin folder).");
-                outputPath = Console.ReadLine();
-                if(outputPath == string.Empty)
-                {
-                    outputPath = Path.GetDirectoryName(dllPath);
-                }
+            // Asks the user to enter the path of the output where the generated code will be saved. If the output path is not specified the code will be saved next to the DLL.
+            var outputPath = GetOutputPathFromUser(dllPath);
 
-                if(!Directory.Exists(outputPath))
-                {
-                    Console.WriteLine("Incorrect path!");
-                    outputPath = string.Empty;
-                }
-            }
+            // Asks the user if the smart contract should be validated when the tool is executed
+            var continueWithValidation = SmartContractValdiationPrompt();
 
-            var continueWithValidation = false;
-            Console.WriteLine("Do you want to validate the smart contract?");
-            var key = Console.ReadKey(false).Key;
-            if(key == ConsoleKey.Y)
-            {
-                continueWithValidation = true;
-            }
 
-            // Gets the type of the compile file, which should inherit ISmartToolGenerator
+
+            // Gets the type of the compile file, which should inherit ISmartToolTemplate
             var assembly = Assembly.LoadFile(dllPath);
             var attributes = assembly.GetTypes().Where(x => x.BaseType == typeof(System.Attribute)).ToList();
-            var iotAttribute = attributes.Where(x => x.Name == "IoTDeviceAttribute").FirstOrDefault();
-            var stratisAttribute = attributes.Where(x => x.Name == "StratisAttribute").FirstOrDefault();
-            var smartToolInterface = assembly.GetTypes().Where(x => x.Name == "ISmartToolGenerator").FirstOrDefault();
+            var iotAttribute = attributes.Where(x => x.Name == nameof(IoTDeviceAttribute)).FirstOrDefault();
+            var stratisAttribute = attributes.Where(x => x.Name == nameof(StratisAttribute)).FirstOrDefault();
+            var smartToolInterface = assembly.GetTypes().Where(x => x.Name == nameof(ISmartToolTemplate)).FirstOrDefault();
             var type = assembly.GetTypes().Where(t => t != null && t != smartToolInterface
                 && !t.GetTypeInfo().IsAbstract && smartToolInterface.IsAssignableFrom(t)).FirstOrDefault();
 
@@ -137,6 +111,55 @@
             }
         }
 
+        private static string GetDllPathFromUser()
+        {
+            var dllPath = string.Empty;
+            while(dllPath == string.Empty)
+            {
+                Console.WriteLine("Enter the DLL path of the project that contains the file which inherits ISmartToolGenerator.");
+                dllPath = Console.ReadLine();
+                if(!File.Exists(dllPath))
+                {
+                    Console.WriteLine("Incorrect path!");
+                    dllPath = string.Empty;
+                }
+            }
+            return dllPath;
+        }
+
+        private static string GetOutputPathFromUser(string dllPath)
+        {
+            var outputPath = string.Empty;
+            while(outputPath == string.Empty)
+            {
+                Console.WriteLine("Enter the preferred output folder location (if not specified files will be located in the bin folder).");
+                outputPath = Console.ReadLine();
+                if(outputPath == string.Empty)
+                {
+                    outputPath = Path.GetDirectoryName(dllPath);
+                }
+
+                if(!Directory.Exists(outputPath))
+                {
+                    Console.WriteLine("Incorrect path!");
+                    outputPath = string.Empty;
+                }
+            }
+
+            return outputPath;
+        }
+
+        private static bool SmartContractValdiationPrompt()
+        {
+            var continueWithValidation = false;
+            Console.WriteLine("Do you want to validate the smart contract?");
+            var key = Console.ReadKey(false).Key;
+            if(key == ConsoleKey.Y)
+            {
+                continueWithValidation = true;
+            }
+            return continueWithValidation;
+        }
 
         static void WriteCode(TextWriter output, DecompilerSettings settings, SyntaxTree syntaxTree)
         {

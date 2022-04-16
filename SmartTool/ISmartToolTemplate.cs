@@ -2,7 +2,7 @@
 {
     using System;
 
-    public interface ISmartToolGenerator
+    public interface ISmartToolTemplate
     {
         public void Main();
     }
