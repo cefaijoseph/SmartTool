@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public static class CsprojCreator
+    public static class CsprojGenerator
     {
         public static string GenerateCsproj(string name, List<ProjectReference> references, OutputType outputType = OutputType.ConsoleApplication, string targetFramework = "net5.0")
         {

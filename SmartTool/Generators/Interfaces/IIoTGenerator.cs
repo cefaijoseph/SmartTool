@@ -8,6 +8,6 @@ namespace SmartTool.Generators.Interfaces
 {
     public interface IIoTGenerator
     {
-        public void GenerateIotCode();
+        public void GenerateIotCode(Type program, string outputPath);
     }
 }

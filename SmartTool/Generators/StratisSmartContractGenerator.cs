@@ -1,17 +1,91 @@
 ﻿using SmartTool.Generators.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmartTool.Generators
 {
     public class StratisSmartContractGenerator : ISmartContractGenerator
     {
-        public void GenerateSmartContract()
+        public void GenerateSmartContract(Type program, string outputPath)
         {
+            // Retrieval of fields and methods from the program passed to the tool
+            var smartContractFields = program.GetFieldsByAttribute(nameof(SmartContractAttribute));
+            var smartContractMethods = program.GetMethodsByAttribute(nameof(SmartContractAttribute));
 
+            var constructorCode = string.Empty;
+
+            // Mapping of fields to stratis 
+            var fieldsCode = string.Join(Environment.NewLine, smartContractFields.Select(f =>
+            {
+                return
+                    $@"
+                        public {f.FieldType.FullName} {f.Name} {{
+	                        get => this.PersistentState.Get{(f.FieldType.BaseType?.Name == "Array" ? $"Array<{f.FieldType.FullName.Replace("[]", "")}>" : f.FieldType.Name)}(nameof(this.{f.Name}));
+	                        private set => this.PersistentState.Set{(f.FieldType.BaseType?.Name == "Array" ? "Array" : f.FieldType.Name)}(nameof(this.{f.Name}), value);
+                        }}";
+            }).ToArray());
+
+            // Methods code retrieval
+            var methodsCode = string.Join(Environment.NewLine, smartContractMethods.Select(method =>
+            {
+
+                // Decompiles the code of the current method
+                string methodCode = program.Decompile(method.MetadataToken);
+
+                // Removes attribute tags
+                foreach (var att in method.CustomAttributes)
+                {
+                    var name = att.AttributeType.Name.Replace("Attribute", "");
+                    methodCode = methodCode.Replace($"[{name}]", string.Empty);
+                }
+
+                return methodCode;
+            }));
+
+            var fileName = "SmartContract";
+            var directory = $"{outputPath}/{program.Name}/";
+            var smartContract = @$"
+                using System;
+                using Stratis.SmartContracts;
+
+                // The [Deploy] attribute only needs to be specified when more than one class is declared in the file, but specifying it anyway is fine.
+                [Deploy]
+
+                public class {fileName} : SmartContract
+                {{
+
+                        //Constructor
+                        public {fileName}(ISmartContractState smartContractState): base(smartContractState)
+                        {{
+                            {constructorCode}
+                        }}
+
+                        {fieldsCode}
+
+                        {methodsCode}
+                    }}
+            ";
+
+            // Project references
+            var projectReferences = new List<ProjectReference>();
+            projectReferences.Add(new ProjectReference() { Name = "Stratis.SmartContracts", Version = "1.2.1" });
+
+            // Csproj code generation
+            var csprojCode = CsprojGenerator.GenerateCsproj(fileName, projectReferences, OutputType.ClassLibrary);
+
+            // Fix usings
+            smartContract = smartContract.FixUsings();
+
+            if (!Directory.Exists($"{directory}{fileName}"))
+            {
+                Directory.CreateDirectory($"{directory}{fileName}");
+            }
+
+            // Create files
+            File.WriteAllText($"{directory}{fileName}/{fileName}.csproj", csprojCode);
+            File.WriteAllText($"{directory}{fileName}/{fileName}.cs", smartContract);
         }
     }
 }

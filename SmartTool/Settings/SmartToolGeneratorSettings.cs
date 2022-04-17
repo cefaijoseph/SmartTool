@@ -1,11 +1,5 @@
-﻿using SmartTool.Generators.Interfaces;
-using SmartTool.LanguageTypes;
-using System;
-using System.Collections.Generic;
+﻿using SmartTool.LanguageTypes;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmartTool.Generators
 {

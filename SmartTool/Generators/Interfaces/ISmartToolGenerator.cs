@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace SmartTool.Generators.Interfaces
 {
-    public interface ISmartToolGenerator : ISmartContractGenerator, IMainIntegrationGenerator, IIoTGenerator
+    public interface ISmartToolGenerator
     {
-        public void LoadInformation();
+        public void GenerateIotCode();
+        public void GenerateMainCode();
+        public void GenerateSmartContract();
     }
 }

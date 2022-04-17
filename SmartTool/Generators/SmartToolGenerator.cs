@@ -16,38 +16,39 @@ namespace SmartTool.Generators
 
         public SmartToolGenerator(SmartToolGeneratorSettings settings)
         {
-            smartToolGeneratorSettings = settings;
-        }
-
-        public void LoadInformation()
-        {
-            // Gets the type of the compile file, which should inherit ISmartToolTemplate
-            var assembly = Assembly.LoadFile(smartToolGeneratorSettings.DllPath);
-            var smartToolInterface = assembly.GetTypes().Where(x => x.Name == nameof(ISmartToolTemplate)).FirstOrDefault();
-            this.program = assembly.GetTypes().Where(t => t != null && t != smartToolInterface
-                && !t.GetTypeInfo().IsAbstract && smartToolInterface.IsAssignableFrom(t)).FirstOrDefault();
+            this.smartToolGeneratorSettings = settings;
+            this.LoadInformation();
         }
 
         public void GenerateIotCode()
         {
-            IIoTGenerator ioTGenerator = GetIoTGenerator();
-            ioTGenerator.GenerateIotCode();
+            IIoTGenerator ioTGenerator = this.GetIoTGenerator();
+            ioTGenerator.GenerateIotCode(this.program, this.smartToolGeneratorSettings.OutputPath);
         }
 
-        public bool GenerateMainCode()
+        public void GenerateMainCode()
         {
             throw new NotImplementedException();
         }
 
         public void GenerateSmartContract()
         {
-            ISmartContractGenerator ioTGenerator = GetSmartContractGenerator();
-            ioTGenerator.GenerateSmartContract();
+            ISmartContractGenerator ioTGenerator = this.GetSmartContractGenerator();
+            ioTGenerator.GenerateSmartContract(this.program, this.smartToolGeneratorSettings.OutputPath);
+        }
+
+        private void LoadInformation()
+        {
+            // Gets the type of the compile file, which should inherit ISmartToolTemplate
+            var assembly = Assembly.LoadFile(this.smartToolGeneratorSettings.DllPath);
+            var smartToolInterface = assembly.GetTypes().Where(x => x.Name == nameof(ISmartToolTemplate)).FirstOrDefault();
+            this.program = assembly.GetTypes().Where(t => t != null && t != smartToolInterface
+                && !t.GetTypeInfo().IsAbstract && smartToolInterface.IsAssignableFrom(t)).FirstOrDefault();
         }
 
         private ISmartContractGenerator GetSmartContractGenerator()
         {
-            switch(smartToolGeneratorSettings.SmartContractType)
+            switch (this.smartToolGeneratorSettings.SmartContractType)
             {
                 case SmartContractType.Stratis:
                     return new StratisSmartContractGenerator();
@@ -58,7 +59,7 @@ namespace SmartTool.Generators
 
         private IIoTGenerator GetIoTGenerator()
         {
-            switch(smartToolGeneratorSettings.IoTType)
+            switch (this.smartToolGeneratorSettings.IoTType)
             {
                 case IoTType.RaspberryPi:
                     return new RaspberryPiGenerator();

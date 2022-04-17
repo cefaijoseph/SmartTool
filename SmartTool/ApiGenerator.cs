@@ -1,16 +1,14 @@
-﻿namespace StratisTool
+﻿namespace SmartTool
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
 
-    public class ApiCreator
+    public class ApiGenerator
     {
         public static string GenerateApi(ApiSettings apiSettings)
         {
-            //if (apiSettings.EndPoints.Count == 0)
-            //    throw new ArgumentException("You need to have at least one endpoint");
             var usings = $@"using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -70,18 +68,5 @@ public class HomeController : Controller
         }}
     }}";
         }
-    }
-
-    public class ApiSettings
-    {
-        public List<FieldInfo> Fields { get; set; }
-        public List<EndPoint> EndPoints { get; set; }
-    }
-
-    public class EndPoint
-    {
-        public ParameterInfo[] Parameters { get; set; }
-        public string FunctionName { get; set; }
-        public string Code { get; set; }
     }
 }

@@ -31,4 +31,10 @@ of the programming burdens through a macro programming approach.</Description>
     <ProjectReference Include="..\Stratis.SmartContracts.Tools.Sct\Stratis.SmartContracts.Tools.Sct.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Settings\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Settings\" />
+  </ItemGroup>
 </Project>

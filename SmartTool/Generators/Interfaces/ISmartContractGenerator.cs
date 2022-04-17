@@ -8,6 +8,6 @@ namespace SmartTool.Generators.Interfaces
 {
     public interface ISmartContractGenerator
     {
-        public void GenerateSmartContract();
+        public void GenerateSmartContract(Type program, string outputPath);
     }
 }

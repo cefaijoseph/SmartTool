@@ -8,6 +8,6 @@ namespace SmartTool.Generators.Interfaces
 {
     public interface IMainIntegrationGenerator
     {
-        public bool GenerateMainCode();
+        public bool GenerateMainCode(Type program, string outputPath);
     }
 }

@@ -2,10 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Iot.Device.CpuTemperature;
     using SmartTool;
 
-    public class Temperature : ISmartToolGenerator
+    public class Temperature : ISmartToolTemplate
     {
         // Note: Stratis and IotDevice attributes indicate where the variables and methods will live
         // Methods can only access variables which live on the same platform, meaning a method with a Stratis attribute can only only access a variable with a Stratis attribute
@@ -19,7 +18,7 @@
         // The main function will contain the logic need between in order to integrate both Blockchain and IoT devices together.
         public void Main()
         {
-            while(true)
+            while (true)
             {
                 //Retrieves the data from the Api, which will eventually live next to an IoT device
                 var temp = GetTemperature();
