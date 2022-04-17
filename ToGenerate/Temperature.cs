@@ -9,10 +9,10 @@
         // Note: Stratis and IotDevice attributes indicate where the variables and methods will live
         // Methods can only access variables which live on the same platform, meaning a method with a Stratis attribute can only only access a variable with a Stratis attribute
 
-        [Stratis]
+        [SmartContract]
         public int TemperatureReadings;
 
-        [Stratis]
+        [SmartContract]
         public int CurrentTemperature;
 
         // The main function will contain the logic need between in order to integrate both Blockchain and IoT devices together.
@@ -39,7 +39,7 @@
             return rnd.Next(50);
         }
 
-        [Stratis]
+        [SmartContract]
         public void StoreTemperature(int tempReading)
         {
             // Update the temperature reading on the blockchain

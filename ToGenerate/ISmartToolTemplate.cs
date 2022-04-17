@@ -8,7 +8,7 @@
     }
 
 
-    public class StratisAttribute : Attribute
+    public class SmartContractAttribute : Attribute
     {
     }
 

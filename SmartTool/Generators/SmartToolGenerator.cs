@@ -1,11 +1,8 @@
 ﻿using SmartTool.Generators.Interfaces;
 using SmartTool.LanguageTypes;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmartTool.Generators
 {
@@ -28,13 +25,19 @@ namespace SmartTool.Generators
 
         public void GenerateMainCode()
         {
-            throw new NotImplementedException();
+            IMainIntegrationGenerator mainIntegrationGenerator = new MainIntegrationGenerator();
+            mainIntegrationGenerator.GenerateMainCode(this.program, this.smartToolGeneratorSettings.OutputPath);
         }
 
         public void GenerateSmartContract()
         {
-            ISmartContractGenerator ioTGenerator = this.GetSmartContractGenerator();
-            ioTGenerator.GenerateSmartContract(this.program, this.smartToolGeneratorSettings.OutputPath);
+            ISmartContractGenerator smartContractGenerator = this.GetSmartContractGenerator();
+            smartContractGenerator.GenerateSmartContract(this.program, this.smartToolGeneratorSettings.OutputPath);
+
+            if (smartToolGeneratorSettings.ValidateSmartContract)
+            {
+                smartContractGenerator.ValidateSmartContract();
+            }
         }
 
         private void LoadInformation()

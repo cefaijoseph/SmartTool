@@ -20,12 +20,12 @@ using Microsoft.Extensions.DependencyInjection;";
             var fields = string.Join(Environment.NewLine, apiSettings.Fields.Select(x => $"private static {x.FieldType.FullName} {x.Name};"));
             var routesCode = string.Join(Environment.NewLine, apiSettings.EndPoints
                 .Select(x =>
-                    $@"[Route(""{x.FunctionName}"")]
-                    public int {x.FunctionName}({string.Concat(x.Parameters.Select((y, index) => $"{(index != 0 ? ", " : "")}{y.ParameterType.FullName} {y.Name}").ToArray())})
-                    {{
-                    {x.Code}
-                    }}"
-                ).ToArray());
+        $@"[Route(""{x.FunctionName}"")]
+        public int {x.FunctionName}({string.Concat(x.Parameters.Select((y, index) => $"{(index != 0 ? ", " : "")}{y.ParameterType.FullName} {y.Name}").ToArray())})
+        {{
+            {x.Code}
+        }}"
+        ).ToArray());
             return $@"{usings}
 public class HomeController : Controller
     {{
