@@ -25,9 +25,6 @@
 
                 // Stores the data on the blockchain
                 StoreTemperature(temp);
-
-                // Waits 10 seconds before process is iterated
-                Task.Delay(10000);
             }
         }
 

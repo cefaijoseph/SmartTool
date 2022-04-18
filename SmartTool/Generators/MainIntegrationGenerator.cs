@@ -78,16 +78,9 @@
             var fileName = "MainApp";
             var directory = $"{outputPath}/{program.Name}/";
             var mainAppCode = @$"
-                using System;
-
-                using System.IO;
-                using System.Linq;
-                using System.Text;
-                using System.Reflection;
-                using System.Collections.Generic;
-                using System.Runtime.CompilerServices;
-                using SmartTool;
-                using static SmartTool.ToolCalls;
+                using static SmartTool.Utilities.ToolCalls;
+                using System.Threading.Tasks;
+                using SmartTool.Utilities;
 
 
                 public class {fileName}
@@ -95,8 +88,8 @@
 
                     static RuntimeSettings runtimeSettings = new RuntimeSettings()
                     {{
-                        ContractAddress = "",
-                        Sender = ""
+                        ContractAddress = """",
+                        Sender = """"
                     }};
 
                     {fieldsCode}
@@ -111,7 +104,7 @@
             projectReferences.Add(new ProjectReference() { Name = "Newtonsoft.Json", Version = "13.0.1" });
 
             // Csproj code generation
-            var csprojCode = CsprojGenerator.GenerateCsproj(fileName, projectReferences, OutputType.ClassLibrary);
+            var csprojCode = CsprojGenerator.GenerateCsproj(fileName, projectReferences);
 
             // Fix usings
             mainAppCode = mainAppCode.FixUsings();

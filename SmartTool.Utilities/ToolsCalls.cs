@@ -86,7 +86,7 @@ namespace SmartTool.Utilities
                         {
                             if(receiptResponse.Success)
                             {
-                                Console.WriteLine("Blockchain: Receipt was returned successfully");
+                                Console.WriteLine($"Blockchain: Receipt was returned successfully (gas used: {receiptResponse.GasUsed}, block number: {receiptResponse.BlockNumber})");
                             }
                             if(!receiptResponse.Success)
                             {
@@ -94,7 +94,7 @@ namespace SmartTool.Utilities
                             }
                             return (T)Convert.ChangeType((receiptResponse.Success), typeof(T));
                         }
-                        Console.WriteLine($"Blockchain: Receipt was returned successfully. Returned {receiptResponse.ReturnValue}");
+                        Console.WriteLine($"Blockchain: Receipt was returned successfully. Returned {receiptResponse.ReturnValue} (gas used: {receiptResponse.GasUsed}, block number: {receiptResponse.BlockNumber})");
                         return (T)Convert.ChangeType(receiptResponse.ReturnValue, typeof(T));
                     }
                 }
