@@ -1,12 +1,12 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
-namespace SmartTool
+namespace SmartTool.Utilities
 {
     public static class ToolCalls
     {
@@ -23,17 +23,13 @@ namespace SmartTool
                     var httpClient = new HttpClient { BaseAddress = new Uri($"http://localhost:{runtimeSettings.IotApiPort}/") };
                     var response = await httpClient.GetAsync(methodName);
                     var responseContent = await response.Content.ReadAsStringAsync();
-                    if(response.IsSuccessStatusCode)
-                    {
-                        Console.WriteLine($"IoTDevice: Execution to {methodName} was successful. Returned {responseContent}");
-                    } else
-                    {
-                        Console.WriteLine($"IoTDevice: Error when calling {methodName}");
-                    }
+                    Console.WriteLine(response.IsSuccessStatusCode
+                        ? $"IoTDevice: Execution to {methodName} was successful. Returned {responseContent}"
+                        : $"IoTDevice: Error when calling {methodName}");
                     return typeof(T) == typeof(bool) ? (T)Convert.ChangeType(response.IsSuccessStatusCode, typeof(T)) : (T)Convert.ChangeType(responseContent, typeof(T));
                 } catch(HttpRequestException ex)
                 {
-                    Console.WriteLine("Error with reaching API");
+                    Console.WriteLine("Error with reaching from API");
                 }
             }
             if(location == "Blockchain")
@@ -57,7 +53,7 @@ namespace SmartTool
                     Console.WriteLine($"Blockchain: Call to {callSmartContractRequest.MethodName} was executed succesfully.");
                 }
                 // After transaction build and deployment on the blockchain, getTransaction is called in order to retrieve the receipt (it will include the return values)
-                if(response != null && response.Success)
+                if(response.Success)
                 {
                     {
                         var triesLeft = 3;
@@ -88,22 +84,22 @@ namespace SmartTool
 
                         if(typeof(T) == typeof(bool))
                         {
-                            if(receiptResponse is not null && receiptResponse.Success)
+                            if(receiptResponse.Success)
                             {
-                                Console.WriteLine($"Blockchain: Receipt was returned successfully");
+                                Console.WriteLine("Blockchain: Receipt was returned successfully");
                             }
-                            if(receiptResponse is null || !receiptResponse.Success)
+                            if(!receiptResponse.Success)
                             {
-                                Console.WriteLine($"Blockchain: Error with receipt retrieval");
+                                Console.WriteLine("Blockchain: Error with receipt retrieval");
                             }
-                            return (T)Convert.ChangeType(receiptResponse == null ? false : (receiptResponse.Success ? true : false), typeof(T));
+                            return (T)Convert.ChangeType((receiptResponse.Success), typeof(T));
                         }
-                        Console.WriteLine($"Blockchain: Receipt was returned successfully. Returned {receiptResponse?.ReturnValue}");
-                        return (T)Convert.ChangeType(receiptResponse?.ReturnValue, typeof(T));
+                        Console.WriteLine($"Blockchain: Receipt was returned successfully. Returned {receiptResponse.ReturnValue}");
+                        return (T)Convert.ChangeType(receiptResponse.ReturnValue, typeof(T));
                     }
                 }
             }
-            Console.WriteLine($"Blockchain: Something went wrong");
+            Console.WriteLine("Blockchain: Something went wrong");
             return (T)Convert.ChangeType(null, typeof(T));
         }
 

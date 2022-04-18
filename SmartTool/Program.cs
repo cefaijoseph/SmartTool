@@ -1,8 +1,10 @@
-﻿namespace SmartTool
+﻿using SmartTool.Settings;
+
+namespace SmartTool
 {
     using System;
     using System.IO;
-    using SmartTool.Generators;
+    using Generators;
 
     class Program
     {

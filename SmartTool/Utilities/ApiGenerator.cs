@@ -1,15 +1,14 @@
-﻿namespace SmartTool
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
+﻿using System;
+using System.Linq;
+using SmartTool.Settings;
 
+namespace SmartTool.Utilities
+{
     public class ApiGenerator
     {
         public static string GenerateApi(ApiSettings apiSettings)
         {
-            var usings = $@"using System;
+            var usings = @"using System;
 using System.Collections.Generic;
 using System.Threading;
 using Iot.Device.CpuTemperature;

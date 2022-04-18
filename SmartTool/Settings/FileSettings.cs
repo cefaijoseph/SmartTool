@@ -1,9 +1,9 @@
-﻿namespace SmartTool
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 
+namespace SmartTool.Settings
+{
     public class FileSettings
     {
         public LocationType LocationType { get; set; }

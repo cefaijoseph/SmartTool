@@ -5,3 +5,8 @@ SmartTool.Utilities/obj
 Stratis.SmartContracts.Tools.Sct/bin
 Stratis.SmartContracts.Tools.Sct/obj
 SmartTool/.vs/SmartTool/v16
+ToGenerate/bin
+ToGenerate/obj
+ToGenerate/.vs
+SmartTool/Properties
+SmartTool/.vs

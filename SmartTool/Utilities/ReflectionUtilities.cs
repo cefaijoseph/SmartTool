@@ -11,9 +11,9 @@ using ICSharpCode.Decompiler.CSharp;
 using ICSharpCode.Decompiler.CSharp.OutputVisitor;
 using ICSharpCode.Decompiler.CSharp.Syntax;
 
-namespace SmartTool
+namespace SmartTool.Utilities
 {
-    public static class Utilities
+    public static class ReflectionUtilities
     {
         public static List<FieldInfo> GetFieldsByAttribute(this Type type, string attribute)
         {
@@ -56,7 +56,7 @@ namespace SmartTool
         public static string FixUsings(this string code)
         {
             var usings = Regex.Matches(code, "using.*?;").Select(x => x.Value).ToList();
-            foreach (var u in usings)
+            foreach(var u in usings)
             {
                 code = code.Replace(u, "");
             }
@@ -71,30 +71,6 @@ namespace SmartTool
         public static List<string> GetFunctionCallsFromText(this string text)
         {
             return Regex.Matches(text, "([a-zA-Z])+([(])+(.*|[(]|[)])+([)])").Select(x => x.Value).ToList();
-        }
-
-        public static string RemoveBetween(this string sourceString, string startTag, string endTag, bool includeTags = false)
-        {
-            Regex regex = new Regex(string.Format("{0}(.*?){1}", Regex.Escape(startTag), Regex.Escape(endTag)));
-            return regex.Replace(sourceString, includeTags == false ? startTag + endTag : "");
-        }
-
-        public static string GetBetween(this string sourceString, string firstString, string lastString)
-        {
-            var pos1 = sourceString.IndexOf(firstString, StringComparison.Ordinal) + firstString.Length;
-            var pos2 = sourceString.IndexOf(lastString, StringComparison.Ordinal);
-            var finalString = sourceString.Substring(pos1, pos2 - pos1);
-            return finalString;
-        }
-
-        public static string RemoveMultipeSpaces(this string text)
-        {
-            return Regex.Replace(text, @"\s+", " ");
-        }
-
-        public static string RemoveTabsSpacing(this string text)
-        {
-            return Regex.Replace(text, "\t", "");
         }
     }
 }

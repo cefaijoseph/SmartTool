@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace SmartTool
+namespace SmartTool.Utilities
 {
     public class CallSmartContractRequest
     {
@@ -32,7 +28,7 @@ namespace SmartTool
 
         public ulong GasLimit { get; set; } = 50000;
 
-        public List<string> Parameters { get; set; } = new List<string>();
+        public List<string> Parameters { get; set; }
 
         public string MethodName { get; set; }
 

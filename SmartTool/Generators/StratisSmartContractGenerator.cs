@@ -7,18 +7,19 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using SmartTool.Utilities;
 
 namespace SmartTool.Generators
 {
     public class StratisSmartContractGenerator : ISmartContractGenerator
     {
 
-        private string outputPath;
-        private Type program;
+        private string _outputPath;
+        private Type _program;
         public void GenerateSmartContract(Type program, string outputPath)
         {
-            this.program = program;
-            this.outputPath = outputPath;
+            this._program = program;
+            this._outputPath = outputPath;
 
             // Retrieval of fields and methods from the program passed to the tool
             var smartContractFields = program.GetFieldsByAttribute(nameof(SmartContractAttribute));
@@ -26,16 +27,12 @@ namespace SmartTool.Generators
 
             var constructorCode = string.Empty;
 
-            // Mapping of fields to stratis 
-            var fieldsCode = string.Join(Environment.NewLine, smartContractFields.Select(f =>
-            {
-                return
-                    $@"
+            // Mapping of fields to stratis
+            var fieldsCode = string.Join(Environment.NewLine, smartContractFields.Select(f => $@"
                         public {f.FieldType.FullName} {f.Name} {{
 	                        get => this.PersistentState.Get{(f.FieldType.BaseType?.Name == "Array" ? $"Array<{f.FieldType.FullName.Replace("[]", "")}>" : f.FieldType.Name)}(nameof(this.{f.Name}));
 	                        private set => this.PersistentState.Set{(f.FieldType.BaseType?.Name == "Array" ? "Array" : f.FieldType.Name)}(nameof(this.{f.Name}), value);
-                        }}";
-            }).ToArray());
+                        }}").ToArray());
 
             // Methods code retrieval
             var methodsCode = string.Join(Environment.NewLine, smartContractMethods.Select(method =>
@@ -79,8 +76,10 @@ namespace SmartTool.Generators
             ";
 
             // Project references
-            var projectReferences = new List<ProjectReference>();
-            projectReferences.Add(new ProjectReference() { Name = "Stratis.SmartContracts", Version = "1.2.1" });
+            var projectReferences = new List<ProjectReference>
+            {
+                new ProjectReference() {Name = "Stratis.SmartContracts", Version = "1.2.1"}
+            };
 
             // Csproj code generation
             var csprojCode = CsprojGenerator.GenerateCsproj(fileName, projectReferences, OutputType.ClassLibrary);
@@ -104,9 +103,9 @@ namespace SmartTool.Generators
         public void ValidateSmartContract()
         {
 
-            var smartContractPath = $"{outputPath}/{program.Name}/StratisSmartContract/StratisSmartContract.cs";
+            var smartContractPath = $"{_outputPath}/{_program.Name}/StratisSmartContract/StratisSmartContract.cs";
             ContractCompilationResult result = CompilationLoader.CompileFromFileOrDirectoryName(smartContractPath);
-            if (result is not null && result.Success)
+            if (result != null && result.Success)
             {
                 byte[] hash = HashHelper.Keccak256(result.Compilation);
                 uint256 hashDisplay = new uint256(hash);
@@ -119,7 +118,7 @@ namespace SmartTool.Generators
             }
             else
             {
-                Console.WriteLine($"Error with validating the smart contract for {program.Name}");
+                Console.WriteLine($"Error with validating the smart contract for {_program.Name}");
             }
         }
     }

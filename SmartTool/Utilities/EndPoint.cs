@@ -1,10 +1,7 @@
-﻿namespace SmartTool
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
+﻿using System.Reflection;
 
+namespace SmartTool.Utilities
+{
     public class EndPoint
     {
         public ParameterInfo[] Parameters { get; set; }

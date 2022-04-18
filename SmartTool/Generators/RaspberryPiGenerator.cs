@@ -1,8 +1,10 @@
 ﻿using SmartTool.Generators.Interfaces;
+using SmartTool.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using SmartTool.Settings;
 
 namespace SmartTool.Generators
 {
@@ -17,15 +19,14 @@ namespace SmartTool.Generators
             // Initialization of list of endpoints for the Web Api
             var endpoints = new List<EndPoint>();
 
-            foreach (MethodInfo method in iotMethods)
+            foreach(MethodInfo method in iotMethods)
             {
-                string methodCode;
 
                 // Decompiles the code of the current method
-                methodCode = program.Decompile(method.MetadataToken);
+                var methodCode = program.Decompile(method.MetadataToken);
 
                 // Removes the attributes from the code
-                foreach (var att in method.CustomAttributes)
+                foreach(var att in method.CustomAttributes)
                 {
                     var name = att.AttributeType.Name.Replace("Attribute", "");
                     methodCode = methodCode.Replace($"[{name}]", "");
@@ -45,11 +46,16 @@ namespace SmartTool.Generators
             var apiCode = ApiGenerator.GenerateApi(apiSettings);
 
             // Project references
-            var projectReferences = new List<ProjectReference>();
-            projectReferences.Add(new ProjectReference() { Name = "Iot.Device.Bindings", Version = "2.1.0" });
-            projectReferences.Add(new ProjectReference() { Name = "Microsoft.AspNetCore.Hosting", Version = "2.2.7" });
-            projectReferences.Add(new ProjectReference() { Name = "Microsoft.AspNetCore.Server.Kestrel", Version = "2.2.0" });
-            projectReferences.Add(new ProjectReference() { Name = "Microsoft.AspNetCore.Server.Kestrel.Transport.Libuv", Version = "5.0.15" });
+            var projectReferences = new List<ProjectReference>
+            {
+                new ProjectReference() {Name = "Iot.Device.Bindings", Version = "2.1.0"},
+                new ProjectReference() {Name = "Microsoft.AspNetCore.Hosting", Version = "2.2.7"},
+                new ProjectReference() {Name = "Microsoft.AspNetCore.Server.Kestrel", Version = "2.2.0"},
+                new ProjectReference()
+                {
+                    Name = "Microsoft.AspNetCore.Server.Kestrel.Transport.Libuv", Version = "5.0.15"
+                }
+            };
 
             var fileName = "IotApp";
             var directory = $"{outputPath}/{program.Name}/";
@@ -60,7 +66,7 @@ namespace SmartTool.Generators
             // Fix usings
             apiCode = apiCode.FixUsings();
 
-            if (!Directory.Exists($"{directory}{fileName}"))
+            if(!Directory.Exists($"{directory}{fileName}"))
             {
                 Directory.CreateDirectory($"{directory}{fileName}");
             }

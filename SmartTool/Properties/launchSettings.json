@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "SmartTool": {
-      "commandName": "Project",
-      "commandLineArgs": "validate"
-    }
-  }
-}

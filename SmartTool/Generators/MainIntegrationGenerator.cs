@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using SmartTool.Generators.Interfaces;
+using SmartTool.Settings;
+using SmartTool.Utilities;
 
 namespace SmartTool.Generators
 {
@@ -43,8 +45,7 @@ namespace SmartTool.Generators
                     var parametersWithType = "";
                     if (methodInfo != null && parametersString.Length > 0)
                     {
-                        ParameterInfo[] sa;
-                        sa = methodInfo.GetParameters();
+                        ParameterInfo[] sa = methodInfo.GetParameters();
                         var parametersWithTypeList = parameters.Select((paramName, index) => new ParametersWithType() { Type = sa[index].ParameterType.Name, Name = paramName }).ToList();
                         if (parametersWithTypeList.Count > 0)
                         {
