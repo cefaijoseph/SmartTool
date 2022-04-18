@@ -1,16 +1,16 @@
-﻿using NBitcoin;
-using SmartTool.Generators.Interfaces;
-using Stratis.SmartContracts.CLR.Compilation;
-using Stratis.SmartContracts.Core.Hashing;
-using Stratis.SmartContracts.Tools.Sct;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using SmartTool.Utilities;
-
-namespace SmartTool.Generators
+﻿namespace SmartTool.Generators
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using NBitcoin;
+    using Interfaces;
+    using Utilities;
+    using Stratis.SmartContracts.CLR.Compilation;
+    using Stratis.SmartContracts.Core.Hashing;
+    using Stratis.SmartContracts.Tools.Sct;
+
     public class StratisSmartContractGenerator : ISmartContractGenerator
     {
 
@@ -18,8 +18,8 @@ namespace SmartTool.Generators
         private Type _program;
         public void GenerateSmartContract(Type program, string outputPath)
         {
-            this._program = program;
-            this._outputPath = outputPath;
+            _program = program;
+            _outputPath = outputPath;
 
             // Retrieval of fields and methods from the program passed to the tool
             var smartContractFields = program.GetFieldsByAttribute(nameof(SmartContractAttribute));

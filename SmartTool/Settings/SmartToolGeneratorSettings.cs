@@ -1,8 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-using SmartTool.LanguageTypes;
-
-namespace SmartTool.Settings
+﻿namespace SmartTool.Settings
 {
+    using System.ComponentModel.DataAnnotations;
+    using LanguageTypes;
 
     public class SmartToolGeneratorSettings
     {

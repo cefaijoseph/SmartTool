@@ -12,12 +12,12 @@ namespace SmartTool.Utilities
           string walletName,
           string sender)
         {
-            this.MethodName = methodName;
-            this.Parameters = parameters;
-            this.ContractAddress = contractAddress;
-            this.Password = password;
-            this.WalletName = walletName;
-            this.Sender = sender;
+            MethodName = methodName;
+            Parameters = parameters;
+            ContractAddress = contractAddress;
+            Password = password;
+            WalletName = walletName;
+            Sender = sender;
         }
 
         public ulong Amount { get; set; }

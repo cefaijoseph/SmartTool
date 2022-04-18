@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace SmartTool.Generators.Interfaces
+﻿namespace SmartTool.Generators.Interfaces
 {
+    using System;
+
     public interface IMainIntegrationGenerator
     {
         public void GenerateMainCode(Type program, string outputPath);

@@ -1,10 +1,8 @@
-﻿using SmartTool.Settings;
-
-namespace SmartTool
+﻿namespace SmartTool
 {
-    using System;
-    using System.IO;
     using Generators;
+    using Settings;
+    using static Utilities.ConsolePrompts;
 
     class Program
     {
@@ -22,60 +20,14 @@ namespace SmartTool
             var smartToolGeneratorSettings = new SmartToolGeneratorSettings(dllPath, LanguageTypes.IoTType.RaspberryPi, LanguageTypes.SmartContractType.Stratis, validateSmartContract, outputPath);
             var smartToolGenerator = new SmartToolGenerator(smartToolGeneratorSettings);
 
+            // Generates IoT project
             smartToolGenerator.GenerateIotCode();
+
+            // Generates the main application with integration to both IoT and Smart contract
             smartToolGenerator.GenerateMainCode();
+
+            // Generates the smart contract and validate it if specified
             smartToolGenerator.GenerateSmartContract();
-        }
-
-        private static string GetDllPathFromUser()
-        {
-            var dllPath = string.Empty;
-            while (dllPath == string.Empty)
-            {
-                Console.WriteLine("Enter the DLL path of the project that contains the file which inherits ISmartToolGenerator.");
-                dllPath = Console.ReadLine();
-                if (!File.Exists(dllPath))
-                {
-                    Console.WriteLine("Incorrect path!");
-                    dllPath = string.Empty;
-                }
-            }
-            return dllPath;
-        }
-
-        private static string GetOutputPathFromUser(string dllPath)
-        {
-            var outputPath = string.Empty;
-            while (outputPath == string.Empty)
-            {
-                Console.WriteLine("Enter the preferred output folder location (if not specified files will be located in the bin folder).");
-                outputPath = Console.ReadLine();
-                if (outputPath == string.Empty)
-                {
-                    outputPath = Path.GetDirectoryName(dllPath);
-                }
-
-                if (!Directory.Exists(outputPath))
-                {
-                    Console.WriteLine("Incorrect path!");
-                    outputPath = string.Empty;
-                }
-            }
-
-            return outputPath;
-        }
-
-        private static bool SmartContractValdiationPrompt()
-        {
-            var validateSmartContract = false;
-            Console.WriteLine("Do you want to validate the smart contract?");
-            var key = Console.ReadKey(false).Key;
-            if (key == ConsoleKey.Y)
-            {
-                validateSmartContract = true;
-            }
-
-            return validateSmartContract;
         }
     }
 }

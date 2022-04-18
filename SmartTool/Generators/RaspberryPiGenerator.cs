@@ -1,13 +1,13 @@
-﻿using SmartTool.Generators.Interfaces;
-using SmartTool.Utilities;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using SmartTool.Settings;
-
-namespace SmartTool.Generators
+﻿namespace SmartTool.Generators
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Reflection;
+    using Interfaces;
+    using Settings;
+    using Utilities;
+
     public class RaspberryPiGenerator : IIoTGenerator
     {
         public void GenerateIotCode(Type program, string outputPath)

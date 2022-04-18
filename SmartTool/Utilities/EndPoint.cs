@@ -1,7 +1,7 @@
-﻿using System.Reflection;
-
-namespace SmartTool.Utilities
+﻿namespace SmartTool.Utilities
 {
+    using System.Reflection;
+
     public class EndPoint
     {
         public ParameterInfo[] Parameters { get; set; }

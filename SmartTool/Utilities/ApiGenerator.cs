@@ -1,9 +1,9 @@
-﻿using System;
-using System.Linq;
-using SmartTool.Settings;
-
-namespace SmartTool.Utilities
+﻿namespace SmartTool.Utilities
 {
+    using System;
+    using System.Linq;
+    using Settings;
+
     public class ApiGenerator
     {
         public static string GenerateApi(ApiSettings apiSettings)

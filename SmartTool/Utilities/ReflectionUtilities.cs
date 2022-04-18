@@ -1,18 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Metadata;
-using System.Reflection.Metadata.Ecma335;
-using System.Text.RegularExpressions;
-using ICSharpCode.Decompiler;
-using ICSharpCode.Decompiler.CSharp;
-using ICSharpCode.Decompiler.CSharp.OutputVisitor;
-using ICSharpCode.Decompiler.CSharp.Syntax;
-
-namespace SmartTool.Utilities
+﻿namespace SmartTool.Utilities
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Reflection;
+    using System.Reflection.Metadata;
+    using System.Reflection.Metadata.Ecma335;
+    using System.Text.RegularExpressions;
+    using ICSharpCode.Decompiler;
+    using ICSharpCode.Decompiler.CSharp;
+    using ICSharpCode.Decompiler.CSharp.OutputVisitor;
+    using ICSharpCode.Decompiler.CSharp.Syntax;
+
     public static class ReflectionUtilities
     {
         public static List<FieldInfo> GetFieldsByAttribute(this Type type, string attribute)

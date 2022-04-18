@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace SmartTool.Utilities
+﻿namespace SmartTool.Utilities
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public static class CsprojGenerator
     {
         public static string GenerateCsproj(string name, List<ProjectReference> references, OutputType outputType = OutputType.ConsoleApplication, string targetFramework = "net5.0")

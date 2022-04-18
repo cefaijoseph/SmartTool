@@ -1,12 +1,12 @@
-﻿using SmartTool.Generators.Interfaces;
-using SmartTool.LanguageTypes;
-using System;
-using System.Linq;
-using System.Reflection;
-using SmartTool.Settings;
-
-namespace SmartTool.Generators
+﻿namespace SmartTool.Generators
 {
+    using System;
+    using System.Linq;
+    using System.Reflection;
+    using Interfaces;
+    using LanguageTypes;
+    using Settings;
+
     public class SmartToolGenerator : ISmartToolGenerator
     {
         private readonly SmartToolGeneratorSettings _smartToolGeneratorSettings;
@@ -14,26 +14,26 @@ namespace SmartTool.Generators
 
         public SmartToolGenerator(SmartToolGeneratorSettings settings)
         {
-            this._smartToolGeneratorSettings = settings;
-            this.LoadInformation();
+            _smartToolGeneratorSettings = settings;
+            LoadInformation();
         }
 
         public void GenerateIotCode()
         {
-            IIoTGenerator ioTGenerator = this.GetIoTGenerator();
-            ioTGenerator.GenerateIotCode(this._program, this._smartToolGeneratorSettings.OutputPath);
+            IIoTGenerator ioTGenerator = GetIoTGenerator();
+            ioTGenerator.GenerateIotCode(_program, _smartToolGeneratorSettings.OutputPath);
         }
 
         public void GenerateMainCode()
         {
             IMainIntegrationGenerator mainIntegrationGenerator = new MainIntegrationGenerator();
-            mainIntegrationGenerator.GenerateMainCode(this._program, this._smartToolGeneratorSettings.OutputPath);
+            mainIntegrationGenerator.GenerateMainCode(_program, _smartToolGeneratorSettings.OutputPath);
         }
 
         public void GenerateSmartContract()
         {
-            ISmartContractGenerator smartContractGenerator = this.GetSmartContractGenerator();
-            smartContractGenerator.GenerateSmartContract(this._program, this._smartToolGeneratorSettings.OutputPath);
+            ISmartContractGenerator smartContractGenerator = GetSmartContractGenerator();
+            smartContractGenerator.GenerateSmartContract(_program, _smartToolGeneratorSettings.OutputPath);
 
             if (_smartToolGeneratorSettings.ValidateSmartContract)
             {
@@ -44,9 +44,9 @@ namespace SmartTool.Generators
         private void LoadInformation()
         {
             // Gets the type of the compile file, which should inherit ISmartToolTemplate
-            var assembly = Assembly.LoadFile(this._smartToolGeneratorSettings.DllPath);
+            var assembly = Assembly.LoadFile(_smartToolGeneratorSettings.DllPath);
             var smartToolInterface = assembly.GetTypes().FirstOrDefault(x => x.Name == nameof(ISmartToolTemplate));
-            this._program = assembly.GetTypes()
+            _program = assembly.GetTypes()
                 .FirstOrDefault(t => smartToolInterface != null && (t != smartToolInterface &&
                                                                     !t.GetTypeInfo().IsAbstract &&
                                                                     smartToolInterface.IsAssignableFrom(t)));
@@ -54,7 +54,7 @@ namespace SmartTool.Generators
 
         private ISmartContractGenerator GetSmartContractGenerator()
         {
-            switch (this._smartToolGeneratorSettings.SmartContractType)
+            switch (_smartToolGeneratorSettings.SmartContractType)
             {
                 case SmartContractType.Stratis:
                     return new StratisSmartContractGenerator();
@@ -65,7 +65,7 @@ namespace SmartTool.Generators
 
         private IIoTGenerator GetIoTGenerator()
         {
-            switch (this._smartToolGeneratorSettings.IoTType)
+            switch (_smartToolGeneratorSettings.IoTType)
             {
                 case IoTType.RaspberryPi:
                     return new RaspberryPiGenerator();

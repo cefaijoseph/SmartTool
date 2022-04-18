@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace SmartTool.Generators.Interfaces
+﻿namespace SmartTool.Generators.Interfaces
 {
+    using System;
+
     public interface ISmartContractGenerator
     {
         public void GenerateSmartContract(Type program, string outputPath);

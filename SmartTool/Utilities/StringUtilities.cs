@@ -1,8 +1,8 @@
-﻿using System;
-using System.Text.RegularExpressions;
-
-namespace SmartTool.Utilities
+﻿namespace SmartTool.Utilities
 {
+    using System;
+    using System.Text.RegularExpressions;
+
     public static class StringUtilities
     {
         public static string RemoveBetween(this string sourceString, string startTag, string endTag, bool includeTags = false)

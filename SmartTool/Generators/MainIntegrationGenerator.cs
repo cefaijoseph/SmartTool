@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using SmartTool.Generators.Interfaces;
-using SmartTool.Settings;
-using SmartTool.Utilities;
-
-namespace SmartTool.Generators
+﻿namespace SmartTool.Generators
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Reflection;
+    using Interfaces;
+    using Settings;
+    using Utilities;
+
     public class MainIntegrationGenerator : IMainIntegrationGenerator
     {
 
