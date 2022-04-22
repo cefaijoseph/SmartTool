@@ -1,0 +1,18 @@
+1. First question. Are you familiar with smart contract coding?
+2. Let's get going. Given that you are faimilar/not familiar (depends on choice) with smart contract coding, what was your overall impression of the tool when you first used it?
+
+if positive
+3. Sweet. What do you like most about it?
+4.  and what do you think could still be improved?
+
+if negative
+5. Thanks for your honesty. What would have to change in order for you to have a good user experience?
+
+6. At the moment, the tool generates smart contracts and IoT code for the Stratis blockchain and the Raspberry Pi. How critical is it to abstract the tool sufficiently so that it is compatible with other blockchains (such as ethereum) and IoT platforms (such as arduino)?
+
+7. Overall quality — how would you rate the tool?
+8. And how innovative is the tool?
+9. Total honesty — do you think it's necessary for people who aren't familiar with blockchain development?
+10. Do you believe the time and effort required to develop such a tool will be worthwhile in the end?
+11. How likely are you to recommend this tool to someone you know?
+12. Got it. What's the main reason you wouldn't recommend it?
