@@ -1,18 +1,23 @@
 1. First question. Are you familiar with smart contract coding?
-2. Let's get going. Given that you are faimilar/not familiar (depends on choice) with smart contract coding, what was your overall impression of the tool when you first used it?
+2. Let's get going. What was your overall impression of the tool when you first used it?
 
 if positive
-3. Sweet. What do you like most about it?
+3. Sweet. What do you like most about the approach of generating a simple system from a single abstract file?
 4.  and what do you think could still be improved?
 
 if negative
 5. Thanks for your honesty. What would have to change in order for you to have a good user experience?
 
-6. At the moment, the tool generates smart contracts and IoT code for the Stratis blockchain and the Raspberry Pi. How critical is it to abstract the tool sufficiently so that it is compatible with other blockchains (such as ethereum) and IoT platforms (such as arduino)?
+6. Currently, the tool generates smart contracts and IoT code for the Stratis blockchain and Raspberry Pi, respectively, but other platforms can be integrated. How critical is it to introduce additional platforms in order to make "Smart Tool" cross-platform? Why?
 
-7. Overall quality — how would you rate the tool?
-8. And how innovative is the tool?
-9. Total honesty — do you think it's necessary for people who aren't familiar with blockchain development?
-10. Do you believe the time and effort required to develop such a tool will be worthwhile in the end?
-11. How likely are you to recommend this tool to someone you know?
-12. Got it. What's the main reason you wouldn't recommend it?
+7. Do you think that the user-generated code is too abstract, could be more abstract, or is fine as-is?
+
+8. Do you think this sort of approach used is useful for programming systems? In other words, coding from an abstract level rather than platform specific coding (replicate to eliminate bias)
+
+9. "Smart Tool" is a cross-platform development tool that will eventually enable users to abstractly create systems for their preferred platform. Do you think that cross-platform development is a worthwhile endeavor for both experienced and inexperienced users? Why?
+
+10. Do you think that this approach is useful for people who are not familiar with blockchain development, for people with blokchain development or both? Why?
+
+11. Do you have any recommedations on what can be done in order to improve the tool?
+
+12. Do you have any suggestions for ways to enhance the tool?

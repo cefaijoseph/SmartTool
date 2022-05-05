@@ -50,7 +50,7 @@
         public static bool SmartContractValdiationPrompt()
         {
             var validateSmartContract = false;
-            Console.WriteLine("Do you want to validate the smart contract?");
+            Console.WriteLine("Do you want to compile the smart contract?");
             var key = Console.ReadKey(false).Key;
             if(key == ConsoleKey.Y)
             {
